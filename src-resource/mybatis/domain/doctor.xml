@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xinrui.hospital.dao.IDoctorDao">
+
+	<cache />
+
+	<select id="queryAllDoctorByPage" resultType="Doctor" useCache="false">
+		SELECT
+		id,
+		name,
+		type,
+		phone,
+		certificateNO,
+		sex,
+		city,
+		district,
+		hospital,
+		headpic,
+		status
+		FROM
+		doctor
+		<where>
+			<if test="doctor.hospital != null and !&quot;&quot;.equals(doctor.hospital.trim())">
+				AND hospital=#{doctor.hospital}
+			</if>
+			<if test="doctor.city != null and !&quot;&quot;.equals(doctor.city.trim())">
+				AND city=#{doctor.city}
+			</if>
+			<if test="doctor.district != null and !&quot;&quot;.equals(doctor.district.trim())">
+				AND district=#{doctor.district}
+			</if>
+			AND status= 0
+		</where>
+		ORDER BY
+		id
+		DESC
+	</select>
+
+	<update id="updateBatch" parameterType="java.util.List">
+		UPDATE doctor SET status = 1 WHERE id in
+		(
+		<foreach collection="list" item="id" separator=",">
+			#{id}
+		</foreach>
+		)
+	</update>
+
+	<delete id="deleteBatch" parameterType="java.util.List">
+		DELETE FROM doctor WHERE id IN
+		(
+		<foreach collection="list" item="id" separator=",">
+			#{id}
+		</foreach>
+		)
+	</delete>
+
+	<select id="queryDoctorCity" resultType="Doctor" useCache="true">
+		SELECT
+		DISTINCT city
+		FROM
+		doctor;
+	</select>
+
+	<select id="queryDoctorDistrict" resultType="Doctor" parameterType="Doctor" useCache="true">
+		SELECT
+		DISTINCT district
+		FROM
+		doctor
+		WHERE
+		city = #{city};
+	</select>
+
+</mapper>
